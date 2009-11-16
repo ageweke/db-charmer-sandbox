@@ -9,7 +9,7 @@ describe DbCharmer, "AR connection switching" do
       BarModel.hijack_connection!      
       @proxy = mock('proxy')
     end
-    
+
     before do
       BarModel.db_charmer_connection_proxy = @proxy
       BarModel.connection.should be(@proxy)
@@ -34,6 +34,12 @@ describe DbCharmer, "AR connection switching" do
       FooModel.switch_connection_to(:logs)
       BarModel.switch_connection_to(FooModel)
       BarModel.connection.object_id.should == DbCharmer::ConnectionFactory.connect('logs').object_id
+    end
+
+    it "should support connection switching for AR::Base" do
+      ActiveRecord::Base.switch_connection_to(:logs)
+      ActiveRecord::Base.connection.object_id == DbCharmer::ConnectionFactory.connect('logs').object_id
+      ActiveRecord::Base.switch_connection_to(nil)
     end
   end
 end
